@@ -50,6 +50,8 @@ type Process struct {
 	Port        int64
 	ForeignIp   string
 	ForeignPort int64
+	TxQueue     int64
+	RxQueue     int64
 }
 
 type iNode struct {
@@ -202,9 +204,12 @@ func processNetstatLine(line string, fileDescriptors *[]iNode, output chan<- Pro
 	state := STATE[line_array[3]]
 	uid := getUser(line_array[7])
 	pid := findPid(line_array[9], fileDescriptors)
+	txqueue, _ := strconv.ParseInt(line_array[4], 10, 64)
+	rxqueue, _ := strconv.ParseInt(line_array[5], 10, 64)
+
 	exe := getProcessExe(pid)
 	name := getProcessName(exe)
-	output <- Process{uid, name, pid, exe, state, ip, port, fip, fport}
+	output <- Process{uid, name, pid, exe, state, ip, port, fip, fport, txqueue, rxqueue}
 }
 
 func getFileDescriptors() []string {
